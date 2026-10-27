@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shree Krishna Admin</title>
+<style>
+:root{color-scheme:dark}body{margin:0;background:#090909;color:#f7f7f7;font:16px system-ui}
+header{padding:22px;background:#111;border-bottom:2px solid #ed1027;font-size:24px;font-weight:800}
+header span{color:#ed1027}.wrap{max-width:760px;margin:24px auto;padding:0 16px}
+.card{background:#171717;border:1px solid #303030;border-radius:16px;padding:18px;margin:14px 0}
+input,select{box-sizing:border-box;width:100%;padding:12px;margin:6px 0 12px;background:#090909;color:white;border:1px solid #444;border-radius:8px}
+button{background:#ed1027;color:white;font-weight:700;border:0;padding:12px 16px;border-radius:9px}
+small{color:#aaa}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+</style>
+</head>
+<body>
+<header>SHREE <span>KRISHNA</span> · ADMIN</header>
+<div class="wrap">
+  <div class="card"><h2>API status</h2><p id="status">Checking…</p><button onclick="checkHealth()">Refresh status</button></div>
+  <div class="card"><h2>Add content (starter)</h2>
+    <p><small>API URL and admin key are entered locally. Do not expose this page publicly without real authentication.</small></p>
+    <label>API base URL</label><input id="api" value="http://127.0.0.1:8000">
+    <label>Admin API key</label><input id="key" type="password" placeholder="Configured in server .env">
+    <label>Title</label><input id="title" placeholder="Movie or show title">
+    <div class="row"><div><label>Type</label><select id="kind"><option value="movie">Movie</option><option value="show">TV Show</option><option value="short">Short</option><option value="live">Live TV</option></select></div>
+    <div><label>Language</label><select id="language"><option>Hindi</option><option>English</option><option>Bangla</option><option>Gujarati</option><option>Rajasthani</option><option>Urdu</option><option>Tamil</option><option>Telugu</option></select></div></div>
+    <label>Category</label><input id="category" value="Drama">
+    <label>Poster URL</label><input id="poster" placeholder="https://...">
+    <label>Authorized stream URL</label><input id="stream" placeholder="https://...m3u8 or compatible URL">
+    <label><input id="premium" type="checkbox" style="width:auto"> Premium content</label><br><br>
+    <button onclick="addContent()">Save content</button><p id="result"></p>
+  </div>
+</div>
+<script>
+async function checkHealth(){const base=document.getElementById('api').value.replace(/\/$/,'');try{let r=await fetch(base+'/health');let d=await r.json();document.getElementById('status').textContent=d.ok?'Online':'Unexpected response'}catch(e){document.getElementById('status').textContent='Offline / unreachable'}}
+async function addContent(){const base=document.getElementById('api').value.replace(/\/$/,'');const body={title:document.getElementById('title').value,kind:document.getElementById('kind').value,language:document.getElementById('language').value,category:document.getElementById('category').value,poster_url:document.getElementById('poster').value||null,stream_url:document.getElementById('stream').value||null,is_premium:document.getElementById('premium').checked,published:true};try{const r=await fetch(base+'/api/content',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-API-Key':document.getElementById('key').value},body:JSON.stringify(body)});const d=await r.json();document.getElementById('result').textContent=r.ok?'Saved: '+d.title:JSON.stringify(d)}catch(e){document.getElementById('result').textContent='Request failed: '+e}}
+checkHealth();
+</script>
+</body></html>
